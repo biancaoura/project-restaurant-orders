@@ -1,6 +1,36 @@
-from src.models.dish import Dish  # noqa: F401, E261, E501
+from src.models.dish import Dish
+from src.models.ingredient import Ingredient, Restriction
+
+import pytest
 
 
-# Req 2
 def test_dish():
-    pass
+    dish = Dish("lasanha", 20.50)
+    ing1 = Ingredient("massa de lasanha")
+    ing2 = Ingredient("presunto")
+    ing3 = Ingredient("queijo mussarela")
+
+    dish.add_ingredient_dependency(ing1, 5.50)
+    dish.add_ingredient_dependency(ing2, 7.00)
+    dish.add_ingredient_dependency(ing3, 8.00)
+
+    assert dish.name == "lasanha"
+    assert dish == Dish("lasanha", 20.50)
+    assert hash(dish) == hash("Dish('lasanha', R$20.50)")
+
+    ingredients = dish.get_ingredients()
+    assert ingredients == {ing1, ing2, ing3}
+
+    restrictions = {
+        Restriction.LACTOSE,
+        Restriction.ANIMAL_DERIVED,
+        Restriction.ANIMAL_MEAT,
+        Restriction.GLUTEN
+    }
+    assert dish.get_restrictions() == restrictions
+
+    with pytest.raises(TypeError):
+        Dish("blabla", "bla")
+
+    with pytest.raises(ValueError):
+        Dish("blabla", -1.00)
